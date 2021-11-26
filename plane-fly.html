@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<title></title>
+	</head>
+	<style>
+		#hand {
+			position: relative;
+			/*定位*/
+			/* top: 10px; */
+			/* left: 10px; */
+			width: 200px;
+			height: 100px;
+			background: #666;
+			/*设置一下背景*/
+			text-align: center;
+			left: 668px;
+			top: 276px;
+			cursor: grab;
+			border-radius: 20px;
+			background-image: linear-gradient(rgb(203, 203, 203), rgb(136, 136, 136));
+			font-weight: 700;
+		}
+
+		.fonts {
+			pointer-events: none;
+			user-select: none;
+		}
+
+		#app {
+			position: relative;
+		}
+
+		.chessboard {
+			position: absolute;
+			width: 500px;
+			height: 500px;
+			text-align: center;
+			border-spacing: 0px;
+			border-collapse: 0;
+			border-color: #efefef;
+			box-sizing: content-box;
+		}
+
+		#myCanvas {
+			position: absolute;
+		}
+
+		td:hover {
+			background-color: pink;
+		}
+		.plane{
+			position: relative;
+		}
+		.fuselage, .wing, .tail{
+			position: absolute;
+			background-color: red;
+			
+		}
+		.plane{
+			position: relative;
+			top:0;
+			left: 100px;
+			width: 50px;
+			height: 200px;
+			border-radius: 50% 50% 0 0;
+			background-color: red;
+		}
+		.plane:before {
+		   content:"";
+		   position: absolute;
+		   top: 50px;
+		   left: -100px;
+		   width: 250px;
+		   height: 50px;
+		   background-color: red;
+		}
+		.plane:after {
+		   content:"";
+		   position: absolute;
+		   top: 150px;
+		   left: -50px;
+		   width: 150px;
+		   height: 50px;
+		   background-color: red;
+		}
+		
+		.wing{
+			position: absolute;
+			top: 50px;
+			left: -100px;
+			width: 250px;
+			height: 50px;
+		}
+		.tail{
+			position: absolute;
+			top: 150px;
+			left: -50px;
+			width: 150px;
+			height: 50px;
+		}
+		
+		
+		
+		
+		
+	</style>
+	<body>
+		<div id="app">
+			<!--绑定按下事件-->
+			<sapn v-if="false">
+				<div id="hand" @mousedown="move">
+					<div class="fonts">
+						{{positionX}}
+						{{positionY}}
+						<p>医生签字位置(可拖拽)</p>
+					</div>
+				</div>
+				医生签字:___________________________________
+			</sapn>
+
+			<table class="chessboard" border="1" cellpadding="0">
+				<tr v-for="(row,index) in areaNum">
+					<td v-for="(cell,cellIndex) in areaNum" :key="cellIndex" @click="go" :style="{background:go}">
+						{{index}}, {{cellIndex}}
+						<input type="checkbox" name="" id="" value="999" />
+					</td>
+				</tr>
+			</table>
+			<canvas id="myCanvas" width="250" height="200" style="border:1px solid #d3d3d3;" @mousedown="move" @touchmove="move"
+				>您的浏览器不支持 HTML5 canvas 标签。</canvas>
+			<div class="plane" @mousedown.stop="move" v-if="0">
+				<!-- <div class="fuselage"></div> -->
+				<!-- <div class="wing"></div> -->
+				<!-- <div class="tail"></div> -->
+			</div>
+
+		</div>
+
+		<script type="text/javascript">
+			let app = new Vue({
+				el: '#app',
+				data: {
+					positionX: 0,
+					positionY: 0,
+					areaNum: 10, //面积大小, (行列数)
+				},
+				mounted() {
+					this.flyCreat()
+				},
+				methods: {
+					go(e) {
+						console.log(e);
+					},
+					flyCreat() {
+						let origin = 0
+						let c = document.getElementById("myCanvas");
+						let ctx = c.getContext("2d");
+						ctx.clearRect(origin, origin, origin + 250, origin + 200);
+						ctx.moveTo(origin, origin + 50);
+						ctx.lineTo(origin + 100, origin + 50);
+						ctx.arcTo(origin + 100, origin, origin + 150, origin, 25);
+						ctx.arcTo(origin + 150, origin, origin + 150, origin + 50, 25);
+						ctx.lineTo(origin + 150, origin + 50);
+						ctx.lineTo(origin + 250, origin + 50);
+						ctx.lineTo(origin + 250, origin + 100);
+						ctx.lineTo(origin + 150, origin + 100);
+						ctx.lineTo(origin + 150, origin + 150);
+						ctx.lineTo(origin + 200, origin + 150);
+						ctx.lineTo(origin + 200, origin + 200);
+						ctx.lineTo(origin + 50, origin + 200);
+						ctx.lineTo(origin + 50, origin + 150);
+						ctx.lineTo(origin + 100, origin + 150);
+						ctx.lineTo(origin + 100, origin + 100);
+						ctx.lineTo(origin, origin + 100);
+						ctx.fillStyle = 'red' // 在原有配置基础上对颜色做改变
+						ctx.fill()
+						//ctx.lineJoin= 'round';
+						ctx.closePath();
+						ctx.stroke(); //描边。stroke不会自动closePath()
+					},
+					move(e) {
+						debugger
+						let odiv = e.target; //获取目标元素
+
+						//算出鼠标相对元素的位置
+						let disX = e.clientX - odiv.offsetLeft;
+						let disY = e.clientY - odiv.offsetTop;
+						odiv.onmousemove=(e) => { //鼠标按下并移动的事件
+							//用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
+							let left = e.clientX - disX;
+							let top = e.clientY - disY;
+
+							//绑定元素位置到positionX和positionY上面
+							this.positionX = top;
+							this.positionY = left;
+
+							//移动当前元素
+							odiv.style.left = left + 'px';
+							odiv.style.top = top + 'px';
+						};
+						// odiv.onmousemove=(eve) => { //鼠标按下并移动的事件
+						const moveFun=(eve) => { //鼠标按下并移动的事件
+						console.log(e,eve)
+						console.log(e==eve)
+						console.log(1111)
+							//用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
+							let left = eve.clientX - disX;
+							let top = eve.clientY - disY;
+						
+							//绑定元素位置到positionX和positionY上面
+							this.positionX = top;
+							this.positionY = left;
+						
+							//移动当前元素
+							odiv.style.left = left + 'px';
+							odiv.style.top = top + 'px';
+						};
+						odiv.onmousemove = moveFun
+						// odiv.ontouchmove =moveFun(e)
+						// odiv.ontouchmove = (e) => { //鼠标按下并移动的事件
+						// 	//用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
+						// 	let left = e.clientX - disX;
+						// 	let top = e.clientY - disY;
+						
+						// 	//绑定元素位置到positionX和positionY上面
+						// 	this.positionX = top;
+						// 	this.positionY = left;
+						
+						// 	//移动当前元素
+						// 	odiv.style.left = left + 'px';
+						// 	odiv.style.top = top + 'px';
+						// };
+						
+						
+						odiv.onmouseup = (e) => {
+							let left = e.clientX - disX;
+							let top = e.clientY - disY;
+							odiv.style.left = this.coordinatePlane(left) + 'px';
+							odiv.style.top = this.coordinatePlane(top) + 'px';
+							console.log(odiv.style.left,odiv.style.top)
+							odiv.onmousemove = null;
+							odiv.onmouseup = null;
+						};
+					},
+					
+					//计算整数偏移量
+					coordinatePlane(location){
+						let baseMultiple = parseInt(location/50);
+						let remainder = location%50;
+						let targetMultiple = remainder>25 ? ++baseMultiple : baseMultiple
+						console.log(baseMultiple)
+						console.log(targetMultiple*50)
+						return  targetMultiple*50+1
+					},
+					
+
+				},
+				computed: {},
+			});
+		</script>
+
+	</body>
+</html>
