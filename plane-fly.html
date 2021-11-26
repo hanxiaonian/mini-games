@@ -37,11 +37,8 @@
 
 		.chessboard {
 			position: absolute;
-			width: 500px;
-			height: 500px;
 			text-align: center;
-			border-spacing: 0px;
-			border-collapse: 0;
+			border-spacing: 0;
 			border-color: #efefef;
 			box-sizing: content-box;
 		}
@@ -55,11 +52,6 @@
 		}
 		.plane{
 			position: relative;
-		}
-		.fuselage, .wing, .tail{
-			position: absolute;
-			background-color: red;
-			
 		}
 		.plane{
 			position: relative;
@@ -88,31 +80,12 @@
 		   height: 50px;
 		   background-color: red;
 		}
-		
-		.wing{
-			position: absolute;
-			top: 50px;
-			left: -100px;
-			width: 250px;
-			height: 50px;
-		}
-		.tail{
-			position: absolute;
-			top: 150px;
-			left: -50px;
-			width: 150px;
-			height: 50px;
-		}
-		
-		
-		
-		
-		
+
 	</style>
 	<body>
 		<div id="app">
 			<!--绑定按下事件-->
-			<sapn v-if="false">
+			<span v-if="false">
 				<div id="hand" @mousedown="move">
 					<div class="fonts">
 						{{positionX}}
@@ -121,17 +94,19 @@
 					</div>
 				</div>
 				医生签字:___________________________________
-			</sapn>
+			</span>
 
-			<table class="chessboard" border="1" cellpadding="0">
+			<table class="chessboard" border="1" cellpadding="0"
+                :style="{width: baseWidth*10+'px',display:'inline-block'}">
 				<tr v-for="(row,index) in areaNum">
-					<td v-for="(cell,cellIndex) in areaNum" :key="cellIndex" @click="go" :style="{background:go}">
+					<td v-for="(cell,cellIndex) in areaNum" :key="cellIndex" @click="go"
+                        :style="{width: baseWidth-2+'px',height: baseWidth-2+'px',overflow:'hidden',display:'inline-block'}">
 						{{index}}, {{cellIndex}}
-						<input type="checkbox" name="" id="" value="999" />
+<!--						<input type="checkbox" name="" id="" value="999" />-->
 					</td>
 				</tr>
 			</table>
-			<canvas id="myCanvas" width="250" height="200" style="border:1px solid #d3d3d3;" @mousedown="move" @touchmove="move"
+			<canvas id="myCanvas" :width="baseWidth*5" :height="baseWidth*4" style="border:1px solid #d3d3d3;" @mousedown="move" @touchmove="move"
 				>您的浏览器不支持 HTML5 canvas 标签。</canvas>
 			<div class="plane" @mousedown.stop="move" v-if="0">
 				<!-- <div class="fuselage"></div> -->
@@ -142,9 +117,11 @@
 		</div>
 
 		<script type="text/javascript">
+            let baseWidth = 25
 			let app = new Vue({
 				el: '#app',
 				data: {
+                    baseWidth : baseWidth,
 					positionX: 0,
 					positionY: 0,
 					areaNum: 10, //面积大小, (行列数)
@@ -157,26 +134,27 @@
 						console.log(e);
 					},
 					flyCreat() {
-						let origin = 0
+                        let origin = 0
+
 						let c = document.getElementById("myCanvas");
 						let ctx = c.getContext("2d");
-						ctx.clearRect(origin, origin, origin + 250, origin + 200);
-						ctx.moveTo(origin, origin + 50);
-						ctx.lineTo(origin + 100, origin + 50);
-						ctx.arcTo(origin + 100, origin, origin + 150, origin, 25);
-						ctx.arcTo(origin + 150, origin, origin + 150, origin + 50, 25);
-						ctx.lineTo(origin + 150, origin + 50);
-						ctx.lineTo(origin + 250, origin + 50);
-						ctx.lineTo(origin + 250, origin + 100);
-						ctx.lineTo(origin + 150, origin + 100);
-						ctx.lineTo(origin + 150, origin + 150);
-						ctx.lineTo(origin + 200, origin + 150);
-						ctx.lineTo(origin + 200, origin + 200);
-						ctx.lineTo(origin + 50, origin + 200);
-						ctx.lineTo(origin + 50, origin + 150);
-						ctx.lineTo(origin + 100, origin + 150);
-						ctx.lineTo(origin + 100, origin + 100);
-						ctx.lineTo(origin, origin + 100);
+						ctx.clearRect(origin, origin, origin + baseWidth*5, origin + baseWidth*4);
+						ctx.moveTo(origin, origin + baseWidth);
+						ctx.lineTo(origin + baseWidth*2, origin + baseWidth);
+						ctx.arcTo(origin + baseWidth*2, origin, origin + baseWidth*3, origin, parseFloat(baseWidth/2));
+						ctx.arcTo(origin + baseWidth*3, origin, origin + baseWidth*3, origin + baseWidth, parseFloat(baseWidth/2));
+						ctx.lineTo(origin + baseWidth*3, origin + baseWidth);
+						ctx.lineTo(origin + baseWidth*5, origin + baseWidth);
+						ctx.lineTo(origin + baseWidth*5, origin + baseWidth*2);
+						ctx.lineTo(origin + baseWidth*3, origin + baseWidth*2);
+						ctx.lineTo(origin + baseWidth*3, origin + baseWidth*3);
+						ctx.lineTo(origin + baseWidth*4, origin + baseWidth*3);
+						ctx.lineTo(origin + baseWidth*4, origin + baseWidth*4);
+						ctx.lineTo(origin + baseWidth, origin + baseWidth*4);
+						ctx.lineTo(origin + baseWidth, origin + baseWidth*3);
+						ctx.lineTo(origin + baseWidth*2, origin + baseWidth*3);
+						ctx.lineTo(origin + baseWidth*2, origin + baseWidth*2);
+						ctx.lineTo(origin, origin + baseWidth*2);
 						ctx.fillStyle = 'red' // 在原有配置基础上对颜色做改变
 						ctx.fill()
 						//ctx.lineJoin= 'round';
@@ -211,32 +189,32 @@
 							//用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
 							let left = eve.clientX - disX;
 							let top = eve.clientY - disY;
-						
+
 							//绑定元素位置到positionX和positionY上面
 							this.positionX = top;
 							this.positionY = left;
-						
+
 							//移动当前元素
 							odiv.style.left = left + 'px';
 							odiv.style.top = top + 'px';
 						};
 						odiv.onmousemove = moveFun
-						// odiv.ontouchmove =moveFun(e)
+						odiv.ontouchmove =moveFun
 						// odiv.ontouchmove = (e) => { //鼠标按下并移动的事件
 						// 	//用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
 						// 	let left = e.clientX - disX;
 						// 	let top = e.clientY - disY;
-						
+
 						// 	//绑定元素位置到positionX和positionY上面
 						// 	this.positionX = top;
 						// 	this.positionY = left;
-						
+
 						// 	//移动当前元素
 						// 	odiv.style.left = left + 'px';
 						// 	odiv.style.top = top + 'px';
 						// };
-						
-						
+
+
 						odiv.onmouseup = (e) => {
 							let left = e.clientX - disX;
 							let top = e.clientY - disY;
@@ -247,17 +225,17 @@
 							odiv.onmouseup = null;
 						};
 					},
-					
+
 					//计算整数偏移量
 					coordinatePlane(location){
-						let baseMultiple = parseInt(location/50);
-						let remainder = location%50;
+						let baseMultiple = parseInt(location/baseWidth);
+						let remainder = location%baseWidth;
 						let targetMultiple = remainder>25 ? ++baseMultiple : baseMultiple
 						console.log(baseMultiple)
-						console.log(targetMultiple*50)
-						return  targetMultiple*50+1
+						console.log(targetMultiple*baseWidth)
+						return  targetMultiple*baseWidth+1
 					},
-					
+
 
 				},
 				computed: {},
